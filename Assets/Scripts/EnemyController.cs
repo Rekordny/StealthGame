@@ -17,6 +17,8 @@ public class EnemyController : MonoBehaviour
     public float maxAngle = 180f;
     public float duration = 3f;
     private bool isSearching = false;
+    // the range we encounter other agent and start searching
+    public float startSearchRange = 5f;
 
     // chase
     public GameObject player;
@@ -105,6 +107,42 @@ public class EnemyController : MonoBehaviour
         isChasing = false;
         // 在追逐结束后，你可以在这里添加一些额外的逻辑
         stateMachine.SetTrigger(cancelChaseParam);
+    }
+
+    // 当附近有友军时停止去search，并开始search
+    public bool ShouldStartSearchInstantly()
+    {
+        if (stateMachine.GetCurrentAnimatorStateInfo(0).IsName("Search"))
+        {
+            // 检查最近友军距离
+            List<GameObject> enemyList = EnemyManager.GetAgents();
+            float shortestDistance = Mathf.Infinity;
+            Vector3 currentPosition = transform.position;
+
+            foreach (GameObject obj in enemyList)
+            {
+                if (obj != null && obj != transform.gameObject) // 确保对象不为空并且不是自己
+                {
+                    // 计算当前对象和自己的距离
+                    float distance = Vector3.Distance(obj.transform.position, currentPosition);
+
+                    // 如果距离比当前最短距离小，更新最近对象和最短距离
+                    if (distance < shortestDistance)
+                    {
+                        shortestDistance = distance;
+                    }
+                }
+            }
+            if (shortestDistance <= startSearchRange)
+            {
+                //Debug.Log(shortestDistance+ "YES I COULD SEARCH NOW");
+                return true;
+            }
+            //Debug.Log(shortestDistance + "NO I COULD NOT SEARCH NOW");
+            return false;
+        }
+        //Debug.Log( "NO I COULD NOT SEARCH NOW");
+        return false;
     }
 
 }

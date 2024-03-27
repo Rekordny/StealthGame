@@ -23,7 +23,8 @@ public class SearchState : StateMachineBehaviour
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (agent.remainingDistance <= agent.stoppingDistance)
+        // When saw another agent in close range, we know some collision will block us to reach destination
+        if (agent.remainingDistance <= agent.stoppingDistance || agent.transform.GetComponent<EnemyController>().ShouldStartSearchInstantly())
         {
             Debug.Log("<color=cyan><size=16>Searching...</size></color>");
             agent.transform.GetComponent<EnemyController>().RotateAndSearch();
